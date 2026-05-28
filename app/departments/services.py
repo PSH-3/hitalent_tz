@@ -69,13 +69,16 @@ def delete_department(
     mode: str,
     reassign_to_department_id: int | None = None,
 ):
+    if mode not in {"cascade", "reassign"}:
+        raise ValidationError("Invalid mode")
+    
     department = get_department(department_id)
 
     if mode == "cascade":
         department.delete()
         return
 
-    if mode == "reassign":
+    else:
         if not reassign_to_department_id:
             raise ValidationError("reassign_to_department_id is required")
 
@@ -86,5 +89,3 @@ def delete_department(
 
         department.employees.update(department=target)
         department.delete()
-
-    raise ValidationError("Invalid mode")
