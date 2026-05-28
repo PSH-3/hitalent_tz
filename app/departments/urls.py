@@ -6,7 +6,7 @@ from .views import (
     DepartmentMoveView,
     DepartmentDeleteView,
 )
-from ..employees.views import DepartmentEmployeeCreateView
+from employees.views import DepartmentEmployeeCreateView
 
 app_name = 'departments'
 

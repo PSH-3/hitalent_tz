@@ -7,7 +7,8 @@ from .selectors import get_department, get_children
 
 @transaction.atomic
 def create_department(*, name: str, parent_id: int | None = None) -> Department:
-    name = name.strip()
+    if not name or not name.strip():
+        raise ValidationError("Name cannot be empty")
 
     parent = None
     if parent_id:
@@ -46,9 +47,9 @@ def move_department(*, department_id: int, parent_id: int | None):
 
 
 def build_department_tree(department: Department, depth: int):
-    if depth < 0:
+    if depth <= 0:
         return []
-
+    
     children = get_children(department)
 
     return [
@@ -78,11 +79,12 @@ def delete_department(
         if not reassign_to_department_id:
             raise ValidationError("reassign_to_department_id is required")
 
+        if reassign_to_department_id == department.id:
+            raise ValidationError("Cannot reassign to self")
+
         target = get_department(reassign_to_department_id)
 
         department.employees.update(department=target)
-
         department.delete()
-        return
 
     raise ValidationError("Invalid mode")
